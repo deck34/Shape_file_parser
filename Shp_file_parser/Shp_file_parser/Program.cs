@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Data.Odbc;
+using System.Data;
 
 namespace Shp_file_parser
 {
@@ -30,13 +32,37 @@ namespace Shp_file_parser
 
         static void Main(string[] args)
         {
+            //Encoding utf8 = Encoding.GetEncoding("UTF-8");
+            //Encoding win1251 = Encoding.GetEncoding("Windows-1251");
+
+            //string FilePath = "C:\\Users\\Administrator\\Desktop\\";
+            //string DBF_FileName = "gis.dbf";
+            //OdbcConnection obdcconn = new System.Data.Odbc.OdbcConnection();
+            //obdcconn.ConnectionString = "Driver={Microsoft dBase Driver (*.dbf)};SourceType=DBF;SourceDB=" + FilePath + ";Exclusive=No; NULL=NO;DELETED=NO;BACKGROUNDFETCH=NO;";
+            //obdcconn.Open();
+            //OdbcCommand oCmd = obdcconn.CreateCommand();
+            //oCmd.CommandText = "SELECT * FROM " + DBF_FileName;
+
+            ///*Load data to table*/
+
+            //DataTable dt1 = new DataTable();
+            //dt1.Load(oCmd.ExecuteReader());
+            //obdcconn.Close();
+
+            ///*Bind data to grid*/
+            //var text = dt1.Rows[1][2].ToString();
+            //byte[] win1251Bytes = win1251.GetBytes(text);
+            //byte[] utf8Bytes = Encoding.Convert(utf8, win1251, win1251Bytes);
+            //var _text = win1251.GetString(utf8Bytes);
+
             BoxFull boxFull;
             byte[] ArrayMainFile = new byte[1];
             byte[] ArrayIndexFile = new byte[1];
 
-
+            string currDir = Environment.CurrentDirectory;
+            string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             //MainFile
-            using (FileStream fstream = File.OpenRead(@"gis_osm_places_a_free_1.shp"))
+            using (FileStream fstream = File.OpenRead(@"gis_osm_places_a_free_1_nw.shp"))
             {
                 byte[] array = new byte[fstream.Length]; // Массив куда считываем весь файл в байтовом формате
                 fstream.Read(array, 0, array.Length);
@@ -63,7 +89,6 @@ namespace Shp_file_parser
 
                 const int SizeofInt = sizeof(int);
                 const int SizeofDouble = sizeof(double);
-
 
                 byte[] array_temp_int = new byte[4];
                 byte[] array_temp_double = new byte[SizeofDouble];
@@ -131,8 +156,8 @@ namespace Shp_file_parser
 
                     Console.WriteLine("\n  RecordNumber[{0}]: {1}", i, RecordNumber[i]);
                     Console.WriteLine("  ContentLength[{0}]: {1}", i, ContentLength[i]);
-                    sw.WriteLine("\r\n  RecordNumber[" + i + "]: " + RecordNumber[i]);
-                    sw.WriteLine("  ContentLength[" + i + "]: " + ContentLength[i]);
+                    sw.WriteLine("\r\nRecordNumber[" + i + "]: " + RecordNumber[i]);
+                    sw.WriteLine("ContentLength[" + i + "]: " + ContentLength[i]);
 
                     //FOR Polygon ONLY!!!!!
                     int ShapeType = BitConverter.ToInt32(ArrayMainFile, offset);
@@ -154,8 +179,8 @@ namespace Shp_file_parser
 
                     Console.WriteLine("  box.Xmin= {0}\n  box.Ymin= {1}\n  box.Xmax= {2}\n  box.Ymax= {3}",
                         box.Xmin, box.Ymin, box.Xmax, box.Ymax);
-                    sw.WriteLine("  box.Xmin= " + box.Xmin + "\r\n  box.Ymin= " + box.Ymin + "\r\n  box.Xmax= " + box.Xmax +
-                        "\r\n  box.Ymax= " + box.Ymax);
+                    sw.WriteLine("box\t[Xmin\\Ymin\\Xmax\\Ymax]:\t" + box.Xmin + "\t" + box.Ymin + "\t" + box.Xmax +
+                        "\t" + box.Ymax);
 
                     polygon[i].Box = box;
                     polygon[i].NumParts = BitConverter.ToInt32(ArrayMainFile, offset);
@@ -166,14 +191,14 @@ namespace Shp_file_parser
                     polygon[i].ResizePoints(polygon[i].NumPoints);
                     Console.WriteLine("  polygon[{0}].NumParts= {1}", i, polygon[i].NumParts);
                     Console.WriteLine("  polygon[{0}].NumPoints= {1}", i, polygon[i].NumPoints);
-                    sw.WriteLine("  polygon[" + i + "].NumParts= " + polygon[i].NumParts);
-                    sw.WriteLine("  polygon[" + i + "].NumPoints= " + polygon[i].NumPoints);
+                    sw.WriteLine("polygon[" + i + "].NumParts= " + polygon[i].NumParts);
+                    sw.WriteLine("polygon[" + i + "].NumPoints= " + polygon[i].NumPoints);
 
                     for (int j = 0; j < polygon[i].NumParts; j++)
                     {
                         polygon[i].Parts[j] = BitConverter.ToInt32(ArrayMainFile, offset);
                         Console.WriteLine("  polygon[{0}].Parts[{1}] = {2}", i, j, polygon[i].Parts[j]);
-                        sw.WriteLine("  polygon[" + i + "].Parts[" + j + "] = " + polygon[i].Parts[j]);
+                        sw.WriteLine("polygon[" + i + "].Parts[" + j + "]= " + polygon[i].Parts[j]);
                         offset += SizeofInt;
                     }
                     for (int j = 0; j < polygon[i].NumPoints; j++)
@@ -194,8 +219,8 @@ namespace Shp_file_parser
                         offset += SizeofDouble * 2;
                         Console.WriteLine(">>  polygon[{0}].Points[{1}] : X= {2}\tY= {3}",
                             i, j, polygon[i].Points[j].X, polygon[i].Points[j].Y);
-                        sw.WriteLine(">>  polygon[" + i + "].Points[" + j + "] : X= " + polygon[i].Points[j].X +
-                            "\tY = " + polygon[i].Points[j].Y);
+                        sw.WriteLine(">>\tpolygon[" + i + "].Points[" + j + "]:\t" + polygon[i].Points[j].X +
+                            "\t" + polygon[i].Points[j].Y);
 
                     }
 
