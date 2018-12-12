@@ -62,7 +62,7 @@ namespace Shp_file_parser
             string currDir = Environment.CurrentDirectory;
             string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             //MainFile
-            using (FileStream fstream = File.OpenRead(@"gis_osm_places_a_free_1_nw.shp"))
+            using (FileStream fstream = File.OpenRead(@"gis_osm_places_a_free_1_sib.shp"))
             {
                 byte[] array = new byte[fstream.Length]; // Массив куда считываем весь файл в байтовом формате
                 fstream.Read(array, 0, array.Length);
@@ -163,11 +163,25 @@ namespace Shp_file_parser
                     int ShapeType = BitConverter.ToInt32(ArrayMainFile, offset);
                     Console.WriteLine("  ShapeType: {0}", ShapeType);
                     offset += SizeofInt;
-                    if (5 != ShapeType) ///temp
+
+                    //               if (1 == ShapeType) ///temp
+                    //{
+                    //                   double X = BitConverter.ToDouble(array_temp_8Double, SizeofDouble * 0);
+                    //                   double Y = BitConverter.ToDouble(array_temp_8Double, SizeofDouble * 1);
+                    //                   sw.WriteLine("XY:\t" + X + "\t" + Y);
+
+                    //               }
+                    //               continue;
+                    if (25 == ShapeType)
+                    {
+                        var a = 0;
+                    }
+                        if (5 != ShapeType) ///temp
 					{
                         Console.WriteLine("\n>\tError! ShapeType is NOT 5.");
                         sw.WriteLine("\r\n>\tError! ShapeType is NOT 5.");
-                        System.Environment.Exit(1);
+                        continue;
+                        //System.Environment.Exit(1);
                     }
 
                     Array.ConstrainedCopy(ArrayMainFile, offset, array_temp_8Double, 0, 4 * SizeofDouble);
